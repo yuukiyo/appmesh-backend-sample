@@ -3,6 +3,7 @@ import boto3
 import json
 import traceback
 import sys
+import os
 import decimal
 from aws_xray_sdk.core import xray_recorder, patch_all
 
@@ -28,11 +29,13 @@ def hello_world():
 @app.route('/ddb')
 def ddb_message():                                
     xray_recorder.begin_segment('ddb_message')
+    message_id = os.environ.get('MESSAGE_ID')
+    app.logger.info(message_id)
 
     try:
         response = table.get_item(
                 Key={
-                    'id': 1
+                    'id': int(message_id)
                 }
             )
         item = response['Item']
